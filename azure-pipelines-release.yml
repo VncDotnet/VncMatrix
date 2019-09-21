@@ -38,7 +38,7 @@ steps:
 
 - powershell: echo $(GetGithubTag.value)
 
- task: GitHubRelease@0
+- task: GitHubRelease@0
   inputs:
     gitHubConnection: 
     action: 'edit'
