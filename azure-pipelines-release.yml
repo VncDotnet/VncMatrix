@@ -40,7 +40,7 @@ steps:
 
 - task: GitHubRelease@0
   inputs:
-    gitHubConnection: 
+    gitHubConnection: 'VncDotnet'
     action: 'edit'
     #target: '$(Build.SourceVersion)' # Required when action == Create || Action == Edit
     tag: $(GetGithubTag.value)
