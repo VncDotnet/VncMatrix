@@ -22,7 +22,7 @@ namespace VncMatrix
             //Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Mu true);
         }
 
-        public static void SendMagicPacket(string mac, IPAddress? expectedAddress = null)
+        public static void SendMagicPacket(string mac)
         {
             Debug.WriteLine($"Waking {mac}");
             var macBytes = mac.Split(':', '-').Select(m => Byte.Parse(m, NumberStyles.AllowHexSpecifier)).ToArray();
@@ -41,13 +41,7 @@ namespace VncMatrix
                 }
             }
 
-            IPEndPoint dest;
-            if (expectedAddress != null)
-                dest = new IPEndPoint(expectedAddress, 0);
-            else
-                dest = BroadcastAddress;
-
-            Socket.SendTo(payload, dest);
+            Socket.SendTo(payload, BroadcastAddress);
         }
     }
 }

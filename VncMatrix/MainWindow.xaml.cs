@@ -52,7 +52,7 @@ namespace VncMatrix
             foreach (VncDotnetControl dotnetVnc in Utils.FindVisualChildren<VncDotnetControl>(this))
             {
                 var monitor = (VncMonitor)dotnetVnc.DataContext;
-                if (monitor.Connection != null)
+                if (monitor.Connection != dotnetVnc.PreEstablishedConnection && monitor.Connection != null)
                 {
                     Debug.WriteLine($"Vm_PropertyChanged {monitor.Port} ({monitor.DisplayName}) {dotnetVnc.GetHashCode()}");
                     dotnetVnc.Stop();

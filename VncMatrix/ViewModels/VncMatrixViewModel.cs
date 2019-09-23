@@ -54,7 +54,7 @@ namespace VncMatrix.ViewModels
                     configServer.Port,
                     monitors);
                 if (server.Mac != null)
-                    WakeOnLan.SendMagicPacket(server.Mac, server.Address);
+                    WakeOnLan.SendMagicPacket(server.Mac);
                 if (server.Monitors != null)
                 {
                     foreach (var _monitor in server.Monitors)
