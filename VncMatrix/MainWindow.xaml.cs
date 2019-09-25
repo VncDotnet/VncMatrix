@@ -47,7 +47,7 @@ namespace VncMatrix
             }
         }
 
-        private void Vm_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private async void Vm_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             foreach (VncDotnetControl dotnetVnc in Utils.FindVisualChildren<VncDotnetControl>(this))
             {
@@ -55,9 +55,24 @@ namespace VncMatrix
                 if (monitor.Connection != dotnetVnc.PreEstablishedConnection && monitor.Connection != null)
                 {
                     Debug.WriteLine($"Vm_PropertyChanged {monitor.Port} ({monitor.DisplayName}) {dotnetVnc.GetHashCode()}");
-                    dotnetVnc.Stop();
-                    dotnetVnc.Start(monitor.Connection, monitor.VisualOffset);
+                    await dotnetVnc.Stop();
+                    await dotnetVnc.Attach(monitor.Connection, monitor.VisualOffset);
                 }
+            }
+        }
+
+        private void MonitorSelected(VncServer vncServer, VncMonitor vncMonitor, LocalMonitor localMonitor)
+        {
+            try
+            {
+                if (DataContext is VncMatrixViewModel vm)
+                {
+                    vm.OpenMonitor(vncServer, vncMonitor, localMonitor);
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"{e}");
             }
         }
     }

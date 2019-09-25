@@ -28,7 +28,7 @@
             </ItemsControl.ItemContainerStyle>
             <ItemsControl.ItemTemplate>
                 <DataTemplate DataType="{x:Type models:VncServer}" >
-                    <wpf1:VncServerControl />
+                    <wpf1:VncServerControl Click="MonitorSelected" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

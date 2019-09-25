@@ -4,14 +4,17 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using VncDotnet;
 using VncMatrix.Models;
+using VncMatrix.Views;
 
 namespace VncMatrix.ViewModels
 {
@@ -19,6 +22,7 @@ namespace VncMatrix.ViewModels
     {
         public CancellationTokenSource CancelSource = new CancellationTokenSource();
         public VncServer[]? VncServers { get; set; } = null;
+        private readonly Dictionary<int, (VncWindow window, LocalMonitor monitor)> OpenWindows = new Dictionary<int, (VncWindow, LocalMonitor)>();
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void RaisePropertyChangedEvent(string propertyName)
@@ -42,9 +46,10 @@ namespace VncMatrix.ViewModels
                 for (int i = 0; i < configServer.Monitors.Length; i++)
                 {
                     var configMonitor = configServer.Monitors[i];
+                    var localMonitors = config.Monitors.Select(cm => new LocalMonitor(cm)).ToArray();
                     monitors[i] = new VncMonitor(configMonitor.DisplayName,
                         configServer.Port + configMonitor.PortOffset,
-                        config.Monitors,
+                        localMonitors,
                         configMonitor.VisualOffset);
                 }
                 var server = new VncServer(configServer.DisplayName,
@@ -66,6 +71,23 @@ namespace VncMatrix.ViewModels
                 VncServers[j] = server;
             }
             RaisePropertyChangedEvent(nameof(VncServers));
+        }
+
+        internal void OpenMonitor(VncServer vncServer, VncMonitor vncMonitor, LocalMonitor localMonitor)
+        {
+            if (OpenWindows.ContainsKey(localMonitor.Number))
+            {
+                (VncWindow window, LocalMonitor monitor) = OpenWindows[localMonitor.Number];
+                window.Close();
+                monitor.CanBeOpened = true;
+                monitor.RaisePropertyChangedEvent(nameof(LocalMonitor.CanBeOpened));
+                OpenWindows.Remove(localMonitor.Number);
+            }
+            var w = new VncWindow(vncServer, vncMonitor, localMonitor);
+            OpenWindows[localMonitor.Number] = (w, localMonitor);
+            localMonitor.CanBeOpened = false;
+            localMonitor.RaisePropertyChangedEvent(nameof(LocalMonitor.CanBeOpened));
+            w.Show();
         }
 
         public async Task HandleVncMonitor(VncServer server, VncMonitor monitor)

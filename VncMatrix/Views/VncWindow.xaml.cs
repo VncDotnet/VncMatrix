@@ -24,9 +24,9 @@ namespace VncMatrix.Views
         readonly CancellationTokenSource CancelSource = new CancellationTokenSource();
         readonly VncServer Server;
         readonly VncMonitor Monitor;
-        readonly int DestinationMonitor;
+        readonly LocalMonitor DestinationMonitor;
 
-        public VncWindow(VncServer server, VncMonitor monitor, int destinationMonitor)
+        public VncWindow(VncServer server, VncMonitor monitor, LocalMonitor destinationMonitor)
         {
             InitializeComponent();
             Server = server;
@@ -37,10 +37,10 @@ namespace VncMatrix.Views
             PreviewKeyDown += VncWindow_PreviewKeyDown;
         }
 
-        private void VncWindow_Closed(object? sender, EventArgs e)
+        private async void VncWindow_Closed(object? sender, EventArgs e)
         {
             CancelSource.Cancel();
-            Vnc.Stop();
+            await Vnc.Stop();
         }
 
         private void VncWindow_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -49,11 +49,11 @@ namespace VncMatrix.Views
                 Close();
         }
 
-        private void VncWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void VncWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            if (DestinationMonitor < System.Windows.Forms.Screen.AllScreens.Length)
+            if (DestinationMonitor.Number < System.Windows.Forms.Screen.AllScreens.Length)
             {
-                var screen = System.Windows.Forms.Screen.AllScreens[DestinationMonitor];
+                var screen = System.Windows.Forms.Screen.AllScreens[DestinationMonitor.Number];
                 var area = screen.WorkingArea;
                 Top = area.Top;
                 Left = area.Left;
@@ -63,7 +63,10 @@ namespace VncMatrix.Views
                 MessageBox.Show($"You don't have a screen with id {DestinationMonitor}");
             }
             WindowState = WindowState.Maximized;
-            Vnc.Start(Server.Address.ToString(), Monitor.Port, Server.Password, RfbConnection.SupportedSecurityTypes, Monitor.VisualOffset, CancelSource.Token);
+            if (Monitor.Connection != null)
+            {
+                await Vnc.Attach(Monitor.Connection, Monitor.VisualOffset);
+            }
         }
     }
 }

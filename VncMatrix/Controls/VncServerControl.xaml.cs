@@ -20,6 +20,16 @@ namespace VncMatrix.Controls
     /// </summary>
     public partial class VncServerControl : UserControl
     {
+        public Action<VncServer, VncMonitor, LocalMonitor> Click
+        {
+            get { return (Action<VncServer, VncMonitor, LocalMonitor>)GetValue(ClickProperty); }
+            set { SetValue(ClickProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Click.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ClickProperty =
+            DependencyProperty.Register("Click", typeof(Action<VncServer, VncMonitor, LocalMonitor>), typeof(VncServerControl), new PropertyMetadata(null));
+
         public VncServerControl()
         {
             InitializeComponent();
@@ -33,7 +43,7 @@ namespace VncMatrix.Controls
                 return;
             }
 
-            if (!(button.DataContext is int localMonitor))
+            if (!(button.DataContext is LocalMonitor localMonitor))
             {
                 MessageBox.Show($"Invalid Button DC {button.DataContext}");
                 return;
@@ -51,7 +61,7 @@ namespace VncMatrix.Controls
                 MessageBox.Show($"Invalid Parent DC {parent}");
                 return;
             }
-            new VncWindow(vncServer, vncMonitor, localMonitor).Show();
+            Click?.Invoke(vncServer, vncMonitor, localMonitor);
         }
     }
 }

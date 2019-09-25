@@ -31,13 +31,12 @@
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Button Click="Button_Click" Content="{Binding}" MinWidth="50" />
+                                <DataTemplate DataType="{x:Type models:LocalMonitor}">
+                                    <Button Click="Button_Click" Content="{Binding Number}" MinWidth="50" IsEnabled="{Binding CanBeOpened}"/>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                         <wpf:VncDotnetControl />
-                        <!--<TextBlock Text="Test" Background="Green" />-->
                     </DockPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
